@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 import { defineConfig, type PluginOption } from 'vite'
 
 export default defineConfig({
-  plugins: [solidStart(), tailwindcss(), nitro()] as PluginOption[],
+  plugins: [solidStart(), tailwindcss(), nitro({ preset: 'vercel' })] as PluginOption[],
   optimizeDeps: {
     exclude: ['source-map-js'],
   },
