@@ -1,5 +1,16 @@
 import { createMemo, createSignal } from 'solid-js'
 
+export const feedbackColors = {
+  correct: '#22c55e',
+  wrongPosition: '#3b82f6',
+  wrong: '#ef4444',
+} as const
+
+export const feedbackOpacity = {
+  wrong: 0.6,
+  default: 1,
+} as const
+
 export const colors = {
   red: '#e74c3c',
   orange: '#e67e22',
@@ -19,7 +30,7 @@ export const lengthToColors = {
 
 export interface LevelConfig {
   length: number
-  password: string[]
+  numSelectableBalls: number
   maxAttempts: number
   colors?: string[]
 }
@@ -27,30 +38,31 @@ export interface LevelConfig {
 export const levels: Record<number, LevelConfig> = {
   1: {
     length: 4,
-    password: ['red', 'blue', 'green', 'purple'],
+    numSelectableBalls: 4,
     maxAttempts: 8,
   },
   2: {
     length: 4,
-    password: ['red', 'blue', 'green', 'purple'],
+    numSelectableBalls: 4,
     maxAttempts: 8,
   },
   3: {
     length: 5,
-    password: ['red', 'yellow', 'blue', 'green', 'purple'],
+    numSelectableBalls: 5,
     maxAttempts: 8,
   },
   4: {
     length: 5,
-    password: ['red', 'yellow', 'blue', 'green', 'purple'],
+    numSelectableBalls: 5,
     maxAttempts: 8,
   },
 }
 
 Object.keys(levels).forEach(level => {
   const levelNum = parseInt(level)
-  const length = levels[levelNum].length as keyof typeof lengthToColors
-  levels[levelNum].colors = lengthToColors[length]
+  const numBalls = levels[levelNum]
+    .numSelectableBalls as keyof typeof lengthToColors
+  levels[levelNum].colors = lengthToColors[numBalls]
 })
 
 export interface Attempt {
@@ -63,6 +75,19 @@ export interface Feedback {
   correctColors: number
 }
 
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array]
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+  }
+  return shuffled
+}
+
+function generatePassword(length: number, availableColors: string[]): string[] {
+  return shuffleArray(availableColors).slice(0, length)
+}
+
 const [level, setLevel] = createSignal(1)
 const [currentAttempt, setCurrentAttempt] = createSignal<string[]>([])
 const [attempts, setAttempts] = createSignal<Attempt[]>([])
@@ -71,13 +96,18 @@ const [currentSlotIndex, setCurrentSlotIndex] = createSignal(0)
 const [success, setSuccess] = createSignal(false)
 const [over, setOver] = createSignal(false)
 const [isHardMode, setIsHardMode] = createSignal(true)
+const [shuffledPassword, setShuffledPassword] = createSignal<string[]>([])
+const [completed, setCompleted] = createSignal(false)
 
 const currentLevel = createMemo(() => levels[level()])
 const maxAttempts = createMemo(() => currentLevel().maxAttempts)
 const currentColors = createMemo(() => currentLevel().colors || [])
+const isLastLevel = createMemo(() => !levels[level() + 1])
 
 function initGame() {
   const lvl = currentLevel()
+  const availableColors = lvl.colors || []
+  setShuffledPassword(generatePassword(lvl.length, availableColors))
   setCurrentAttempt(Array(lvl.length).fill(null) as string[])
   setAttempts([])
   setCurrentRow(0)
@@ -134,7 +164,8 @@ function calculateFeedback(attempt: string[], password: string[]): Feedback {
 
 function checkPassword() {
   const lvl = currentLevel()
-  const feedback = calculateFeedback(currentAttempt(), lvl.password)
+  const password = shuffledPassword()
+  const feedback = calculateFeedback(currentAttempt(), password)
 
   const newAttempt: Attempt = {
     attempt: [...currentAttempt()],
@@ -160,10 +191,19 @@ function nextLevel() {
   if (levels[level() + 1]) {
     setLevel(level() + 1)
     queueMicrotask(() => initGame())
+  } else {
+    setCompleted(true)
   }
 }
 
 function resetGame() {
+  setCompleted(false)
+  queueMicrotask(() => initGame())
+}
+
+function restartAll() {
+  setLevel(1)
+  setCompleted(false)
   queueMicrotask(() => initGame())
 }
 
@@ -181,9 +221,13 @@ export const gameState = {
   currentLevel,
   maxAttempts,
   currentColors,
+  shuffledPassword,
+  completed,
+  isLastLevel,
   initGame,
   selectColor,
   calculateFeedback,
   nextLevel,
   resetGame,
+  restartAll,
 }

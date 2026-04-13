@@ -1,5 +1,11 @@
 import { For } from 'solid-js'
-import { colors, gameState, type Attempt } from '~/lib/gameState'
+import {
+  colors,
+  feedbackColors,
+  feedbackOpacity,
+  gameState,
+  type Attempt,
+} from '~/lib/gameState'
 import { Peg } from './Peg'
 
 interface AttemptRowProps {
@@ -42,18 +48,18 @@ export default function AttemptRow(props: AttemptRowProps) {
   const isHardMode = gameState.isHardMode
   const currentLevel = gameState.currentLevel
   const individualFeedback = () =>
-    getIndividualFeedback(props.attempt.attempt, currentLevel().password)
+    getIndividualFeedback(props.attempt.attempt, gameState.shuffledPassword())
 
   const getIndicatorColor = (
     status: 'correct' | 'wrong-position' | 'wrong',
   ) => {
     switch (status) {
       case 'correct':
-        return '#22c55e'
+        return feedbackColors.correct
       case 'wrong-position':
-        return '#3b82f6'
+        return feedbackColors.wrongPosition
       case 'wrong':
-        return '#ef4444'
+        return feedbackColors.wrong
     }
   }
 
@@ -81,7 +87,11 @@ export default function AttemptRow(props: AttemptRowProps) {
                   variant='indicator'
                   color='custom'
                   customColor={getIndicatorColor(status)}
-                  opacity={status === 'wrong' ? 0.6 : 1}
+                  opacity={
+                    status === 'wrong'
+                      ? feedbackOpacity.wrong
+                      : feedbackOpacity.default
+                  }
                   shadow
                   title={
                     status === 'correct'
