@@ -17,29 +17,32 @@ export default function ActiveRow() {
             .fill(0)
             .map((_, i) => i)}
         >
-          {index => (
-            <div
-              class={`w-10 h-10 md:w-12 md:h-12 rounded-lg flex items-center justify-center font-semibold text-gray-500 transition-all duration-200 cursor-default ${
-                currentAttempt()[index]
-                  ? 'shadow-md border-2 border-transparent'
-                  : 'bg-gray-100 border-2 border-dashed border-gray-300'
-              } ${
-                !success() && !over() && index === currentSlotIndex()
-                  ? 'ring-2 ring-blue-400 ring-offset-2 scale-105'
-                  : ''
-              }`}
-              style={
-                currentAttempt()[index]
-                  ? {
-                      'background-color':
-                        colors[currentAttempt()[index] as keyof typeof colors],
-                    }
-                  : {}
-              }
-            >
-              {!currentAttempt()[index] && index + 1}
-            </div>
-          )}
+          {index => {
+            const color = () => currentAttempt()[index]
+            return (
+              <div
+                class={`w-10 h-10 md:w-12 md:h-12 rounded-lg flex items-center justify-center font-semibold text-gray-500 transition-all duration-200 cursor-default ${
+                  color()
+                    ? 'shadow-md border-2 border-transparent'
+                    : 'bg-gray-100 border-2 border-dashed border-gray-300'
+                } ${
+                  !success() && !over() && index === currentSlotIndex()
+                    ? 'ring-2 ring-blue-400 ring-offset-2 scale-105'
+                    : ''
+                }`}
+                style={
+                  color()
+                    ? {
+                        'background-color':
+                          colors[color() as keyof typeof colors],
+                      }
+                    : {}
+                }
+              >
+                {!color() && index + 1}
+              </div>
+            )
+          }}
         </For>
       </div>
 

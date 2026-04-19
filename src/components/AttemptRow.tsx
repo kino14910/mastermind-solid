@@ -4,51 +4,20 @@ import {
   feedbackColors,
   feedbackOpacity,
   gameState,
+  getIndividualFeedback,
   type Attempt,
 } from '~/lib/gameState'
 import { Peg } from './Peg'
 
 interface AttemptRowProps {
   attempt: Attempt
-  index: number
-}
-
-function getIndividualFeedback(
-  attempt: string[],
-  password: string[],
-): ('correct' | 'wrong-position' | 'wrong')[] {
-  const passwordCopy = [...password]
-  const attemptCopy = [...attempt]
-  const result: ('correct' | 'wrong-position' | 'wrong')[] = Array(
-    attempt.length,
-  ).fill('wrong')
-
-  for (let i = 0; i < attempt.length; i++) {
-    if (attempt[i] === password[i]) {
-      result[i] = 'correct'
-      passwordCopy[i] = null as unknown as string
-      attemptCopy[i] = null as unknown as string
-    }
-  }
-
-  for (let i = 0; i < attempt.length; i++) {
-    if (attemptCopy[i] !== null) {
-      const foundIndex = passwordCopy.indexOf(attemptCopy[i])
-      if (foundIndex !== -1) {
-        result[i] = 'wrong-position'
-        passwordCopy[foundIndex] = null as unknown as string
-      }
-    }
-  }
-
-  return result
 }
 
 export default function AttemptRow(props: AttemptRowProps) {
   const isHardMode = gameState.isHardMode
   const currentLevel = gameState.currentLevel
   const individualFeedback = () =>
-    getIndividualFeedback(props.attempt.attempt, gameState.shuffledPassword())
+    getIndividualFeedback(props.attempt.attempt, gameState.getPassword())
 
   const getIndicatorColor = (
     status: 'correct' | 'wrong-position' | 'wrong',
@@ -71,10 +40,15 @@ export default function AttemptRow(props: AttemptRowProps) {
             <For each={props.attempt.attempt}>
               {color => (
                 <div
-                  class='w-10 h-10 rounded-lg shadow-sm'
-                  style={{
-                    'background-color': colors[color as keyof typeof colors],
-                  }}
+                  class={`w-10 h-10 rounded-lg ${color ? 'shadow-sm' : 'bg-gray-100'}`}
+                  style={
+                    color
+                      ? {
+                          'background-color':
+                            colors[color as keyof typeof colors],
+                        }
+                      : {}
+                  }
                 />
               )}
             </For>
@@ -111,10 +85,15 @@ export default function AttemptRow(props: AttemptRowProps) {
             <For each={props.attempt.attempt}>
               {color => (
                 <div
-                  class='w-10 h-10 md:w-12 md:h-12 rounded-lg shadow-md border-2 border-gray-200'
-                  style={{
-                    'background-color': colors[color as keyof typeof colors],
-                  }}
+                  class={`w-10 h-10 md:w-12 md:h-12 rounded-lg ${color ? 'shadow-md border-2 border-gray-200' : 'bg-gray-100'}`}
+                  style={
+                    color
+                      ? {
+                          'background-color':
+                            colors[color as keyof typeof colors],
+                        }
+                      : {}
+                  }
                 />
               )}
             </For>
@@ -143,9 +122,12 @@ export default function AttemptRow(props: AttemptRowProps) {
             </For>
             <For
               each={Array(
-                currentLevel().length -
-                  props.attempt.feedback.correctPositions -
-                  props.attempt.feedback.correctColors,
+                Math.max(
+                  0,
+                  currentLevel().length -
+                    props.attempt.feedback.correctPositions -
+                    props.attempt.feedback.correctColors,
+                ),
               ).fill(0)}
             >
               {() => (

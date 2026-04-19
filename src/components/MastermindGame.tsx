@@ -8,7 +8,29 @@ import { Tutorial } from './Tutorial'
 
 export default function MastermindGame() {
   onMount(() => {
-    gameState.initGame()
+    gameState.loadGame()
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (gameState.success() || gameState.over() || gameState.completed())
+        return
+
+      if (e.key === 'Backspace') {
+        e.preventDefault()
+        gameState.undoColor()
+        return
+      }
+
+      const num = parseInt(e.key)
+      if (num >= 1 && num <= gameState.currentColors().length) {
+        const color = gameState.currentColors()[num - 1]
+        if (color) {
+          gameState.selectColor(color)
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
   })
 
   return (
@@ -50,6 +72,21 @@ export default function MastermindGame() {
                   </div>
 
                   <div class='flex gap-2'>
+                    <Show
+                      when={
+                        gameState.currentSlotIndex() > 0 &&
+                        !gameState.success() &&
+                        !gameState.over()
+                      }
+                    >
+                      <button
+                        onClick={() => gameState.undoColor()}
+                        class='px-4 py-2 bg-amber-100 hover:bg-amber-200 text-amber-700 font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-amber-300'
+                      >
+                        撤销
+                      </button>
+                    </Show>
+
                     <button
                       onClick={() => gameState.resetGame()}
                       class='px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-300'
@@ -65,6 +102,13 @@ export default function MastermindGame() {
                         {gameState.isLastLevel() ? '通关' : '下一关'}
                       </button>
                     </Show>
+
+                    <button
+                      onClick={() => gameState.resetAll()}
+                      class='px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-300'
+                    >
+                      清空数据
+                    </button>
                   </div>
                 </div>
 
