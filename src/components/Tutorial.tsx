@@ -29,7 +29,7 @@ export function Tutorial() {
       <div
         class={`transition-all duration-200 ${isOpen() ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'} overflow-hidden`}
       >
-        <ul class='space-y-2 text-sm text-gray-600 px-4 pb-4'>
+        <ul class='space-y-2 text-sm text-gray-600 p-4'>
           <li class='flex items-start gap-2'>
             <span class='text-blue-500'>●</span>
             <span>密码是由不同颜色组成的序列</span>
