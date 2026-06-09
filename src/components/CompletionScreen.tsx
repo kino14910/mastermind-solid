@@ -1,7 +1,8 @@
 import { For } from 'solid-js'
-import { gameState, levels } from '~/lib/gameState'
+import { levels, useGameState } from '~/lib/gameState'
 
 export function CompletionScreen() {
+  const gameState = useGameState()
   const stats = gameState.levelStats
 
   return (
@@ -38,7 +39,7 @@ export function CompletionScreen() {
 
       <div class='flex gap-4'>
         <button
-          onClick={() => gameState.resetAll()}
+          onClick={() => gameState.clearProgress()}
           class='px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2'
         >
           重新开始

@@ -1,10 +1,11 @@
 import { For, Show } from 'solid-js'
-import { gameState } from '~/lib/gameState'
+import { useGameState } from '~/lib/gameState'
 import ActiveRow from './ActiveRow'
 import AttemptRow from './AttemptRow'
 import EmptyRow from './EmptyRow'
 
 export default function GameBoard() {
+  const gameState = useGameState()
   const attempts = gameState.attempts
   const currentRow = gameState.currentRow
   const maxAttempts = gameState.maxAttempts

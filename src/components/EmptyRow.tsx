@@ -1,5 +1,5 @@
 import { For } from 'solid-js'
-import { gameState } from '~/lib/gameState'
+import { useGameState } from '~/lib/gameState'
 import { Peg } from './Peg'
 
 interface EmptyRowProps {
@@ -7,6 +7,7 @@ interface EmptyRowProps {
 }
 
 export default function EmptyRow(props: EmptyRowProps) {
+  const gameState = useGameState()
   const currentLevel = gameState.currentLevel
 
   const safeCount = () => Math.max(0, props.count)

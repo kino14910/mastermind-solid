@@ -1,7 +1,8 @@
 import { For } from 'solid-js'
-import { colors, gameState } from '~/lib/gameState'
+import { colors, useGameState } from '~/lib/gameState'
 
 export default function ColorPalette() {
+  const gameState = useGameState()
   const colorList = gameState.currentColors
 
   return (
@@ -12,7 +13,7 @@ export default function ColorPalette() {
             <button
               class='w-12 h-12 rounded-full cursor-pointer transition-all duration-200 hover:scale-110 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 disabled:opacity-50 disabled:cursor-not-allowed'
               style={{
-                'background-color': colors[color as keyof typeof colors],
+                'background-color': colors[color],
               }}
               onClick={() => gameState.selectColor(color)}
               disabled={

@@ -1,8 +1,36 @@
 import { For } from 'solid-js'
-import { colors, gameState } from '~/lib/gameState'
+import { colors, type ColorName, useGameState } from '~/lib/gameState'
 import { Peg } from './Peg'
 
+interface ActiveSlotProps {
+  color: ColorName | null
+  index: number
+  isActive: boolean
+}
+
+function ActiveSlot(props: ActiveSlotProps) {
+  return (
+    <div
+      class={`w-10 h-10 md:w-12 md:h-12 rounded-lg flex items-center justify-center font-semibold text-gray-500 transition-all duration-200 cursor-default ${
+        props.color
+          ? 'shadow-md border-2 border-transparent'
+          : 'bg-gray-100 border-2 border-dashed border-gray-300'
+      } ${props.isActive ? 'ring-2 ring-blue-400 ring-offset-2 scale-105' : ''}`}
+      style={
+        props.color
+          ? {
+              'background-color': colors[props.color],
+            }
+          : {}
+      }
+    >
+      {!props.color && props.index + 1}
+    </div>
+  )
+}
+
 export default function ActiveRow() {
+  const gameState = useGameState()
   const currentLevel = gameState.currentLevel
   const currentAttempt = gameState.currentAttempt
   const currentSlotIndex = gameState.currentSlotIndex
@@ -20,27 +48,11 @@ export default function ActiveRow() {
           {index => {
             const color = () => currentAttempt()[index]
             return (
-              <div
-                class={`w-10 h-10 md:w-12 md:h-12 rounded-lg flex items-center justify-center font-semibold text-gray-500 transition-all duration-200 cursor-default ${
-                  color()
-                    ? 'shadow-md border-2 border-transparent'
-                    : 'bg-gray-100 border-2 border-dashed border-gray-300'
-                } ${
-                  !success() && !over() && index === currentSlotIndex()
-                    ? 'ring-2 ring-blue-400 ring-offset-2 scale-105'
-                    : ''
-                }`}
-                style={
-                  color()
-                    ? {
-                        'background-color':
-                          colors[color() as keyof typeof colors],
-                      }
-                    : {}
-                }
-              >
-                {!color() && index + 1}
-              </div>
+              <ActiveSlot
+                color={color()}
+                index={index}
+                isActive={!success() && !over() && index === currentSlotIndex()}
+              />
             )
           }}
         </For>

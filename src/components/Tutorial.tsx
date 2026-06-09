@@ -1,13 +1,17 @@
 import { createSignal } from 'solid-js'
-import { gameState } from '~/lib/gameState'
+import { useGameState } from '~/lib/gameState'
 
 export function Tutorial() {
+  const gameState = useGameState()
   const [isOpen, setIsOpen] = createSignal(false)
+  const panelId = 'game-rules-panel'
 
   return (
     <div class='mt-8 bg-gray-50 rounded-lg border border-gray-200 overflow-hidden'>
       <button
         onClick={() => setIsOpen(!isOpen())}
+        aria-controls={panelId}
+        aria-expanded={isOpen()}
         class='w-full flex items-center justify-between p-4 text-left hover:bg-gray-100 transition-colors duration-200'
       >
         <h2 class='text-lg font-bold text-gray-800'>游戏规则</h2>
@@ -27,6 +31,7 @@ export function Tutorial() {
       </button>
 
       <div
+        id={panelId}
         class={`transition-all duration-200 ${isOpen() ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'} overflow-hidden`}
       >
         <ul class='space-y-2 text-sm text-gray-600 p-4'>

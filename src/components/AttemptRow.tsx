@@ -3,8 +3,8 @@ import {
   colors,
   feedbackColors,
   feedbackOpacity,
-  gameState,
   getIndividualFeedback,
+  useGameState,
   type Attempt,
 } from '~/lib/gameState'
 import { Peg } from './Peg'
@@ -14,6 +14,7 @@ interface AttemptRowProps {
 }
 
 export default function AttemptRow(props: AttemptRowProps) {
+  const gameState = useGameState()
   const isHardMode = gameState.isHardMode
   const currentLevel = gameState.currentLevel
   const individualFeedback = () =>
@@ -44,8 +45,7 @@ export default function AttemptRow(props: AttemptRowProps) {
                   style={
                     color
                       ? {
-                          'background-color':
-                            colors[color as keyof typeof colors],
+                          'background-color': colors[color],
                         }
                       : {}
                   }
@@ -89,8 +89,7 @@ export default function AttemptRow(props: AttemptRowProps) {
                   style={
                     color
                       ? {
-                          'background-color':
-                            colors[color as keyof typeof colors],
+                          'background-color': colors[color],
                         }
                       : {}
                   }
